@@ -1,0 +1,151 @@
+import pandas as pd
+import numpy as np
+import csv
+
+#this block of code will return a the data into Py in a workable format
+filename = '2021_pittsburgh_fish_fry_locations.csv'
+
+fields = []
+rows = []
+
+#The below data is the entire data set
+with open (filename, 'r') as csvfile:
+    csvreader = csv.reader(csvfile)
+    fields = next (csvreader)
+    for row in csvreader:
+        rows.append(row)
+    print("Total no. of rows: %d"%(csvreader.line_num))
+    
+print(type(rows))
+    
+'''
+print('Field names are:' + ', '.join(field for field in fields)) #testing 
+print('\nFirst 5 rows are:\n')
+for row in rows[:5]:
+    # parsing each column of a row
+    for col in row:
+        print("%30s"%col,end=" "),
+    print('\n')
+'''
+rows1= pd.DataFrame(rows)
+rawfishData = rows1.fillna("Not Available") #Replace NaNs with something to tell user the data is missing
+print(rawfishData.describe()) #testing that NaNs are indeed gone
+
+#rawfishData is a DF with NaNs replaced with "Not Available"
+#fields and rows are lists without the NaNs filled in
+
+
+#The below block of data will be used to get the data of interest for our application
+print(fields)
+rawData = [] #data type list
+    
+for line in rows:
+    line1 = line[:-1]
+    line2 = str(line1)
+    line_new = line2.split(',')
+    rawData.append(line_new[1]) #name of venue
+    rawData.append(line_new[2]) #venue type
+    rawData.append(line_new[3]) #venue address
+    rawData.append(line_new[4]) #venue website
+    rawData.append(line_new[5]) # events is col 5 but the strs are so long you can't print with anyother information
+    rawData.append(line_new[7]) #menu website
+    rawData.append(line_new[14]) #if there is alcohol 
+    #print('{:<50s} {:<10s} {:<10s} {:<20s}'.format(line_new[1], line_new[2], line_new[3], line_new[4])) #snapshot of rawData
+
+#print(rawData) #makeing sure rawData has all the selcted infromation
+
+#The below code will convert rawData and our data of intrest to a data frame and remove NaNs
+
+rawData_DF = pd.DataFrame(rawfishData)
+rawData_clean = rawData_DF.fillna ("Not Available")
+#print(rawData_clean) #testing to see if it worked
+
+rawData_arr = np.array(rawData)
+#created an array to be used in later code
+
+#------------------------------------------------------------------------------------
+from re import match
+import re
+#This next block of code is for the application menu
+             
+print()
+def menu():
+    while True:                    
+        print('Thank you for your interest in Pittsburgh Fish Fry\n')
+        print(r'As they say at Carnegie Mellon "Our Hearts are in the Fish!"')
+        print("*********************************MAIN MENU*****************************************")
+        print()
+        
+        choice = input ('''
+                        Enter 1 to see Fish Fry Locations Near you\n
+                        Enter 2 to see Fish Fry Rankings Near you\n
+                        Enter 3 to Determine Your Optimal Fish, Based on texture & Type\n
+                        Enter 4 to See Where You can Find a Fish Fry with Alcohol\n
+                        Enter 5 to See Where Perogis are Included!
+                        Enter 6 to Determine Fish Fry Opening Times\n
+                        Enter Q to Quit\n
+                        
+                        Please Enter your Choice:''')
+                        
+        if choice == '1':#filtering out the fish frys not in Pittsburgh
+            
+        
+            bool_index = []
+            for addr in rawData_DF[3]:
+                if re.search(r'Pittsburgh', addr) != None:
+                    bool_index.append(True)
+            else:
+                bool_index.append(False)
+                
+            pitt_locs = rawData_DF[bool_index]
+            
+            for item in pitt_locs:
+                    print(item[2], item[3], item[4])
+            #print(pitt_locs)
+          
+                         
+        
+        elif choice == '2':
+            print('2')
+            
+    
+        elif choice == '3':
+            print('3')  
+            
+        elif choice == '4':
+            print('4')
+            
+        elif choice == '5':
+            print('5')
+            
+        elif choice == '6':
+            print('6')
+            
+        elif choice == 'Q' or choice == 'q':
+            print('Application Closed')
+            return
+        else:
+            print('You must enter either a number 1 through 5, or Quit using q')
+            print('Please Try Again')
+            
+
+
+menu()
+        
+
+
+#this block of code is ment to provide a countdown to the end of the Fish Fry
+
+
+d = input("Enter Number of Days until April 14, 2022: ") #This is the end of lent    
+
+hours = int(d) * 24
+mins = hours * 60
+secs = mins * 24
+
+print("You have this much time left!:", hours, "hours", mins, "Minutes", secs, "Seconds Left to eat fish! Hurry!\n")
+    
+
+print('Please note Fish Fry information is Updated as of Feb 24th, 2022')
+
+
